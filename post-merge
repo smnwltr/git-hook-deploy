@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Set path to local Jekyll project
+site=PATH_TO_YOUR_SITE
+
+# Set production branch
+production=YOUR_PRODUCTION_BRANCH
+
+# Set SSH user 
+user=YOUR_SSH_USER
+
+# Set destination path on server
+destination=YOUR_DESTINATION
+
+# Determin current branch 
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+# Deploy master to marvellafarms.com server at Ionos
+if [[ $branch == $production ]]; then
+    echo "Deploying master branch to $destination"
+    cd $site && JEKYLL_ENV=production jekyll build && rsync -avP --delete-after --force $site/_site/ $user@$destination
+    if [[ $? == 0 ]]; then
+        echo 'Deploy successful'
+    else
+        echo 'Something went wrong - deploy failed'
+    fi
+fi
